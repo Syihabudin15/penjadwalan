@@ -3,8 +3,12 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Models\Role;
+use App\Models\Menu;
+use App\Models\Biodata;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,11 +19,44 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $role = Role::firstOrCreate([
+            "nama" => "Developer",
+            "status" => "AKTIF"
+        ]);
+        $menus = [
+            [
+                "nama" => "Dashboard",
+                "path" => "/",
+                "akses" => "read",
+                "role_id" => $role->id
+            ],
+            [
+                "nama" => "Data Role",
+                "path" => "/role",
+                "akses" => "read,create,update,delete",
+                "role_id" => $role->id
+            ],
+            [
+                "nama" => "Data Pengguna",
+                "path" => "/user",
+                "akses" => "read,create,update,delete",
+                "role_id" => $role->id
+            ]
+        ];
+        foreach ($menus as $m) {
+            Menu::create($m);
+        }
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $user = User::create([
+            'email' => 'developer@gmail.com',
+            'password' => Hash::make('Tsani182'),
+            "status" => "AKTIF"
+        ]);
+        $user->role()->sync($role->id);
+        Biodata::create([
+            "nim_nidn" => "0010101",
+            "nama" => "Developer",
+            "user_id" => $user->id
         ]);
     }
 }
